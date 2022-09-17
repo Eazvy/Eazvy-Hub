@@ -2,14 +2,9 @@ if not game:IsLoaded() then
     game.Loaded:Wait()
 end
 
+local Library = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
 local httpservice = game:GetService('HttpService')
 local httprequest = (syn and syn.request) or http and http.request or http_request or (fluxus and fluxus.request) or request
-
-
-
---Pls_Donate_Main.lua
-
-local Library = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
 
 if not httprequest then 
   Library:MakeNotification({
