@@ -78,6 +78,7 @@ Tab:AddButton({Name = "Load Script",Callback = function()
     Method = "GET"
 })
 if response.Body ~= "404: Not Found" then
+    Library:Destroy()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/Eazvy/Eazvy-Hub/main/games/" .. game.PlaceId .. ".lua", true))()
 else
     Library:MakeNotification({
