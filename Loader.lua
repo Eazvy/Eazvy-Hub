@@ -6,38 +6,21 @@ local Library = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shle
 local httpservice = game:GetService('HttpService')
 local httprequest = (syn and syn.request) or http and http.request or http_request or (fluxus and fluxus.request) or request
 
+local function SendNotification(Name,Content,Image,Time)
+    Library:MakeNotification({
+    Name = Name,
+    Content = Content,
+    Image = Image,
+    Time = Time
+    })
+end
+
 if not httprequest then 
-  Library:MakeNotification({
-    Name = "Eazvy Hub - Error",
-    Content = "Your exploit is not supported with Eazvy Hub",
-    Image = "rbxassetid://161551681",
-    Time = 5
-})
+  SendNotification("Eazvy Hub - Error", "Your exploit is not supported with Eazvy Hub", "rbxassetid://161551681", 5)
 end
 
 
 
-
-    
-    
-local function ServerHop()
-    local servers = {}
-    local req = httprequest({Url = "https://games.roblox.com/v1/games/"..tostring(game.PlaceId).."/servers/Public?sortOrder=Desc&limit=100"})
-    local body = httpservice:JSONDecode(req.Body)
-    if body and body.data then
-        for i, v in next, body.data do
-            if type(v) == "table" and tonumber(v.playing) and tonumber(v.maxPlayers) and v.playing < v.maxPlayers and v.playing > 19 then
-            table.insert(servers, 1, v.id)
-            end 
-        end
-    end
-    if #servers > 0 then
-        game:GetService("TeleportService"):TeleportToPlaceInstance(game.PlaceId, servers[math.random(1, #servers)], game.Players.LocalPlayer)
-    end
-    game:GetService("TeleportService").TeleportInitFailed:Connect(function()
-        game:GetService("TeleportService"):TeleportToPlaceInstance(game.PlaceId, servers[math.random(1, #servers)], game.Players.LocalPlayer)
-    end)
-end
 
 Library:MakeNotification({
     Name = "Eazvy Hub",
@@ -92,38 +75,28 @@ end
 end})
 
 Tab:AddButton({Name = "Join Discord",Callback = function()
-    if httprequest then 
-      Library:MakeNotification({
-      Name = "Attempting to join Discord-Server",
-      Content = "Check your Discord-Application, or Web-Browser on your currently logged in account.",
-      Image = "rbxassetid://10715004387",
-      Time = 5
-  })
-httpRequest({
-                Url = "http://127.0.0.1:6463/rpc?v=1",
-                Method = "POST",
-                Headers = {
-                    ["Content-Type"] = "application/json",
-                    ["Origin"] = "https://discord.com"
-                },
-                Body = game:GetService("HttpService"):JSONEncode({
-                    cmd = "INVITE_BROWSER",
-                    args = {
-                        code = "YpmmYZc544"
-                    },
-                    nonce = game:GetService("HttpService"):GenerateGUID(false)
-                })
-            })
-        end
- if setclipboard then
+if httprequest then 
+    SendNotification("Attempting to join Discord-Server", "Check your Discord-Application or Web-Browser on your current logged in account.", "rbxassetid://10715004387", 5)
+    httpRequest({
+    Url = "http://127.0.0.1:6463/rpc?v=1",
+    Method = "POST",
+    Headers = {
+        ["Content-Type"] = "application/json",
+        ["Origin"] = "https://discord.com"
+    },
+    Body = game:GetService("HttpService"):JSONEncode({
+    cmd = "INVITE_BROWSER",
+    args = {
+         code = "YpmmYZc544"
+    },
+    nonce = game:GetService("HttpService"):GenerateGUID(false)
+    })
+    })
+end
+if setclipboard and not httprequest then
     setclipboard("https://discord.gg/YpmmYZc544")
-    Library:MakeNotification({
-      Name = "Copied Discord Invite to your Clipboard",
-      Content = "Check your Clipboard for the invite copy and paste it in DMs or in the join-box.",
-      Image = "rbxassetid://10715004387",
-      Time = 5
-  })
- end
+    SendNotification("Set Discord-Invite to your Clipboard", "Check your Clipboard for the invite copy+paste it in your DMs or in the join-box.", "rbxassetid://10715004387", 5)
+end
 end})
 
 Tab:AddButton({Name = "Rejoin",Callback = function()
@@ -131,6 +104,3 @@ Tab:AddButton({Name = "Rejoin",Callback = function()
 end})
 
 
-Tab:AddButton({Name = "Serverhop",Callback = function()
-    ServerHop()
-end})
