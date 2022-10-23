@@ -2,7 +2,12 @@ if not game:IsLoaded() then
     game.Loaded:Wait()
 end
 
+--library 
 local Library = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
+local Request = (syn and syn.request) or http and http.request or http_request or (fluxus and fluxus.request) or request
+
+
+--Functions
 
 local function SendNotification(Name,Content,Image,Time)
     Library:MakeNotification({
@@ -13,65 +18,41 @@ local function SendNotification(Name,Content,Image,Time)
     })
 end
 
-if not httprequest then 
-  SendNotification("Eazvy Hub - Error", "Your exploit is not supported with Eazvy Hub", "rbxassetid://161551681", 5)
-end
 
 
 
+SendNotification("Eazvy Hub", "Loading please wait...", "rbxassetid://10715004387", 3)
 
-Library:MakeNotification({
-    Name = "Eazvy Hub",
-    Content = "Loading please wait...",
-    Image = "rbxassetid://10715004387",
-    Time = 5
-})
+
 
 local Window = Library:MakeWindow({
     Name = "Eazvy-Hub - Loader",
     HidePremium = true, 
     SaveConfig = false, 
     ConfigFolder = "Pls Donate Eazvy Hub",
-    IntroEnabled = true,
+    IntroEnabled = false,
     IntroText = "Eazvy Hub",
     IntroIcon = "rbxassetid://4562959390",
     Icon = "rbxassetid://10715004387",
 })
 
-
-
-
-local Tab = Window:MakeTab({
+local Main = Window:MakeTab({
 	Name = "Home",
-	Icon = "rbxassetid://4562959390",
+	Icon = "rbxassetid://9204970314",
 	PremiumOnly = false
 })
 
+--Paragraphs 
+Main:AddParagraph("Important","Eazvy-Hub is not responsible for in-game bans. If you are banned permanently, to not beg the owner/admins to help you or it'll result in a permanent blacklist.")
+Main:AddParagraph("Supported Executors:","Synapse X, KRNL, Scriptware, Fluxus. Some things may not function properly this all based off of your Executor! If your executor is not supported it may not be functional!")
 
-
-Tab:AddParagraph("Important","Eazvy-Hub is not responsible for in-game bans. If you are banned permanently, to not beg the owner/admins to help you or it'll result in a permanent blacklist.")
-Tab:AddParagraph("Supported Executors:","KRNL, Synapse X, Scriptware, Fluxus, Oxygen U. Some functions within Eazvy-Hub may not support your executor. Compatability of the script is all based off of your executor!")
-Tab:AddParagraph("Credits:", "Eazvy")
-
-Tab:AddButton({Name = "Load Script",Callback = function()
-    local response = httprequest({
-    Url = "https://raw.githubusercontent.com/Eazvy/Eazvy-Hub/main/games/" .. game.PlaceId .. ".lua",
-    Method = "GET"
-})
-			
-if response.Body ~= "404: Not Found" then
-    Library:Destroy()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/Eazvy/Eazvy-Hub/main/games/" .. game.PlaceId .. ".lua", true))()
-else
-    Library:MakeNotification({
-    Name = "Eazvy Hub - Error",
-    Content = "The game you're currently in is not supported with Eazvy Hub",
-    Image = "rbxassetid://161551681",
-    Time = 5
-})
-return
-end
+Main:AddButton({Name = "Load Script",Callback = function()
+    local GetScript = Request({Url = "https://raw.githubusercontent.com/Eazvy/Eazvy-Hub/main/Games/" .. game.PlaceId .. ".lua",Method = "GET"})
+    if GetScript.Body ~= "404: Not Found" then
+        Library:Destroy()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Eazvy/Eazvy-Hub/main/Games/" .. game.PlaceId .. ".lua"))()
+    else
+        SendNotification("Eazvy Hub - Error", "The game you're currently in is not supported with Eazvy Hub.", "rbxassetid://161551681", 5)
+        return
+    end
 end})
-
-
-
