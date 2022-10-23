@@ -3,8 +3,6 @@ if not game:IsLoaded() then
 end
 
 local Library = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
-local httpservice = game:GetService('HttpService')
-local httprequest = (syn and syn.request) or http and http.request or http_request or (fluxus and fluxus.request) or request
 
 local function SendNotification(Name,Content,Image,Time)
     Library:MakeNotification({
@@ -60,6 +58,7 @@ Tab:AddButton({Name = "Load Script",Callback = function()
     Url = "https://raw.githubusercontent.com/Eazvy/Eazvy-Hub/main/games/" .. game.PlaceId .. ".lua",
     Method = "GET"
 })
+			
 if response.Body ~= "404: Not Found" then
     Library:Destroy()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/Eazvy/Eazvy-Hub/main/games/" .. game.PlaceId .. ".lua", true))()
@@ -70,37 +69,9 @@ else
     Image = "rbxassetid://161551681",
     Time = 5
 })
-    return
+return
 end
 end})
 
-Tab:AddButton({Name = "Join Discord",Callback = function()
-if httprequest then 
-    SendNotification("Attempting to join Discord-Server", "Check your Discord-Application or Web-Browser on your current logged in account.", "rbxassetid://10715004387", 5)
-    httpRequest({
-    Url = "http://127.0.0.1:6463/rpc?v=1",
-    Method = "POST",
-    Headers = {
-        ["Content-Type"] = "application/json",
-        ["Origin"] = "https://discord.com"
-    },
-    Body = game:GetService("HttpService"):JSONEncode({
-    cmd = "INVITE_BROWSER",
-    args = {
-         code = "YpmmYZc544"
-    },
-    nonce = game:GetService("HttpService"):GenerateGUID(false)
-    })
-    })
-end
-if setclipboard and not httprequest then
-    setclipboard("https://discord.gg/YpmmYZc544")
-    SendNotification("Set Discord-Invite to your Clipboard", "Check your Clipboard for the invite copy+paste it in your DMs or in the join-box.", "rbxassetid://10715004387", 5)
-end
-end})
-
-Tab:AddButton({Name = "Rejoin",Callback = function()
-    game:GetService("TeleportService"):TeleportToPlaceInstance(game.PlaceId, game.JobId, game:GetService("Players").LocalPlayer)    
-end})
 
 
