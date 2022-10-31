@@ -3,7 +3,7 @@ if not game:IsLoaded() then
 end
 
 --library 
-local Library = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
+local Library = loadstring(game:HttpGet(('https://raw.githubusercontent.com/Eazvy/Eazvy-Hub/main/Content/UILibrary.lua')))()
 local Request = (syn and syn.request) or http and http.request or http_request or (fluxus and fluxus.request) or request
 
 
