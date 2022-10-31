@@ -29,7 +29,6 @@ local Window = Library:MakeWindow({
     Name = "Eazvy-Hub - Loader",
     HidePremium = true, 
     SaveConfig = false, 
-    ConfigFolder = "Pls Donate Eazvy Hub",
     IntroEnabled = false,
     IntroText = "Eazvy Hub",
     IntroIcon = "rbxassetid://4562959390",
