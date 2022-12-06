@@ -1948,7 +1948,7 @@ function OrionLib:MakeWindow(WindowConfig)
 					BackgroundTransparency = 1,
 					TextColor3 = Color3.fromRGB(255, 255, 255),
 					PlaceholderColor3 = Color3.fromRGB(210,210,210),
-					PlaceholderText = "Input",
+					PlaceholderText = "",
 					Font = Enum.Font.GothamSemibold,
 					TextXAlignment = Enum.TextXAlignment.Center,
 					TextSize = 14,
