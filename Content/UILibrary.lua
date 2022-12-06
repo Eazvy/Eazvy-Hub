@@ -41,7 +41,7 @@ local OrionLib = {
 			UsesGradient = true
 		}
 	},
-	SelectedTheme = "TokyoNightOld",
+	SelectedTheme = "TokyoNight",
 	Folder = nil,
 	SaveCfg = false
 }
