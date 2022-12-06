@@ -19,10 +19,29 @@ local OrionLib = {
 			Stroke = Color3.fromRGB(60, 60, 60),
 			Divider = Color3.fromRGB(60, 60, 60),
 			Text = Color3.fromRGB(240, 240, 240),
-			TextDark = Color3.fromRGB(150, 150, 150)
+			TextDark = Color3.fromRGB(150, 150, 150),
+			Accent = Color3.fromRGB(9, 99, 195)
+		},
+		TokyoNightOld = {
+			Text = Color3.fromHex("#ffffff"),
+			Main = Color3.fromHex("#0a0047"),
+			Second = Color3.fromHex("#0a0047"),
+			TextDark = Color3.fromHex("#0a0047"),
+			Stroke = Color3.fromHex("#323232"),
+			Divider = Color3.fromHex("#ffffff"),
+		},
+		TokyoNight = {
+			Text = Color3.fromRGB(200, 200, 200),
+			Second = Color3.fromRGB(38, 45, 71),
+			Main = Color3.fromRGB(26, 32, 58),
+			Stroke = Color3.fromRGB(43, 51, 80),
+			Divider = Color3.fromRGB(220, 220, 220),
+			TextDark = Color3.fromRGB(150, 150, 150),
+			Accent = Color3.fromRGB(83, 83, 203),
+			UsesGradient = true
 		}
 	},
-	SelectedTheme = "Default",
+	SelectedTheme = "TokyoNight",
 	Folder = nil,
 	SaveCfg = false
 }
@@ -46,36 +65,23 @@ local function GetIcon(IconName)
 	end
 end   
 
+local CoreGui = game:GetService("CoreGui")
+
 local Orion = Instance.new("ScreenGui")
 Orion.Name = "Orion"
-if syn then
-	syn.protect_gui(Orion)
-	Orion.Parent = game.CoreGui
-else
-	Orion.Parent = gethui() or game.CoreGui
+Orion.Parent = CoreGui
+
+
+
+for _, Interface in ipairs(CoreGui:GetChildren()) do
+	if Interface.Name == Orion.Name and Interface ~= Orion then
+		Interface:Destroy()
+	end
 end
 
-if gethui then
-	for _, Interface in ipairs(gethui():GetChildren()) do
-		if Interface.Name == Orion.Name and Interface ~= Orion then
-			Interface:Destroy()
-		end
-	end
-else
-	for _, Interface in ipairs(game.CoreGui:GetChildren()) do
-		if Interface.Name == Orion.Name and Interface ~= Orion then
-			Interface:Destroy()
-		end
-	end
-end
 
 function OrionLib:IsRunning()
-	if gethui then
-		return Orion.Parent == gethui()
-	else
-		return Orion.Parent == game:GetService("CoreGui")
-	end
-
+	return Orion.Parent == CoreGui
 end
 
 local function AddConnection(Signal, Function)
@@ -127,6 +133,29 @@ local function MakeDraggable(DragPoint, Main)
 		end)
 	end)
 end    
+
+function tween(Instance, Properties, Duration, ...)
+	local tweenInfo = TweenInfo.new(Duration, ...)
+	local tween = TweenService:Create(Instance, tweenInfo, Properties)
+	tween:Play()
+	return tween
+end
+
+function create(_Instance, Properties, Children)
+	local Object = Instance.new(_Instance)
+	local Properties = Properties or {}
+	local Children = Children or {}
+
+	for Index, Property in next, Properties do
+		Object[Index] = Property
+	end
+
+	for _, Child in next, Children do
+		Child.Parent = Object
+	end
+
+	return Object
+end
 
 local function Create(Name, Properties, Children)
 	local Object = Instance.new(Name)
@@ -231,6 +260,7 @@ local function LoadCfg(Config)
 end
 
 local function SaveCfg(Name)
+	if true then return end
 	local Data = {}
 	for i,v in pairs(OrionLib.Flags) do
 		if v.Save then
@@ -388,6 +418,8 @@ local NotificationHolder = SetProps(SetChildren(MakeElement("TFrame"), {
 	Parent = Orion
 })
 
+
+
 function OrionLib:MakeNotification(NotificationConfig)
 	spawn(function()
 		NotificationConfig.Name = NotificationConfig.Name or "Notification"
@@ -449,7 +481,7 @@ function OrionLib:MakeNotification(NotificationConfig)
 	end)
 end    
 
-function OrionLib:Init()
+function OrionLib:Init(Window)
 	if OrionLib.SaveCfg then	
 		pcall(function()
 			if isfile(OrionLib.Folder .. "/" .. game.GameId .. ".txt") then
@@ -461,7 +493,48 @@ function OrionLib:Init()
 				})
 			end
 		end)		
-	end	
+	end
+	
+	local Settings = Window:MakeTab({
+		Name = "Settings",
+		HiddenInTabList = true
+	})
+	
+	Settings:AddSection({ Name = "General"}):AddSlider({
+		Name = "Tween Drag Speed",
+		Min = 0,
+		Max = 20,
+		Default = 5,
+		Increment = 1,
+		Callback = function(Value)
+			print(Value)
+		end    
+	})
+
+	
+	local Appearance = Settings:AddSection({
+		Name = "Appearance"
+	})
+	
+	Appearance:AddDropdown({
+		Name = "Theme (WIP, doesnt work.)",
+		Default = "Tokyo Night",
+		Options = {"Light", "Dark", "Moon", "Discord", "Midnight"},
+		Callback = function(Value)
+			print(Value)
+		end    
+	})
+	
+	
+	
+	
+	
+	local TabHolder = OrionLib.Internal.TabHolder
+	for _, v in ipairs(TabHolder:GetChildren()) do
+		if v:IsA("TextButton") and v.Title.Text == "Settings" then
+			v:Destroy()
+		end
+	end
 end	
 
 function OrionLib:MakeWindow(WindowConfig)
@@ -498,6 +571,9 @@ function OrionLib:MakeWindow(WindowConfig)
 		MakeElement("List"),
 		MakeElement("Padding", 8, 0, 0, 8)
 	}), "Divider")
+	
+	OrionLib.Internal = {}
+	OrionLib.Internal.TabHolder = TabHolder
 
 	AddConnection(TabHolder.UIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"), function()
 		TabHolder.CanvasSize = UDim2.new(0, 0, 0, TabHolder.UIListLayout.AbsoluteContentSize.Y + 16)
@@ -513,8 +589,30 @@ function OrionLib:MakeWindow(WindowConfig)
 			Size = UDim2.new(0, 18, 0, 18)
 		}), "Text")
 	})
+	
+	local ThreeDotsBtn = SetChildren(SetProps(MakeElement("Button"), {
+		Size = UDim2.new(0.5, 0, 1, 50),
+		BackgroundTransparency = 1,
+	}), {
+		AddThemeObject(SetProps(MakeElement("Image", "rbxassetid://7734053495"), {
+			Position = UDim2.new(0, 9, 0, 6),
+			Size = UDim2.new(0, 18, 0, 18),
+			Name = "Ico"
+		}), "Text")
+	})
 
 	local MinimizeBtn = SetChildren(SetProps(MakeElement("Button"), {
+		Size = UDim2.new(0.5, 0, 1, 0),
+		BackgroundTransparency = 1
+	}), {
+		AddThemeObject(SetProps(MakeElement("Image", "rbxassetid://7072719338"), {
+			Position = UDim2.new(0, 9, 0, 6),
+			Size = UDim2.new(0, 18, 0, 18),
+			Name = "Ico"
+		}), "Text")
+	})
+	
+	local MinimizeBtn2 = SetChildren(SetProps(MakeElement("Button"), {
 		Size = UDim2.new(0.5, 0, 1, 0),
 		BackgroundTransparency = 1
 	}), {
@@ -587,6 +685,14 @@ function OrionLib:MakeWindow(WindowConfig)
 			}), "TextDark")
 		}),
 	}), "Second")
+	
+	local SettingsFrame = AddThemeObject(SetChildren(SetProps(MakeElement("RoundFrame", Color3.fromRGB(255, 255, 255), 0, 7), {
+		Size = UDim2.new(0, 36, 0, 30),
+		Position = UDim2.new(1, -140, 0, 10)
+	}), {
+		AddThemeObject(MakeElement("Stroke"), "Stroke"),
+		ThreeDotsBtn
+	}), "Second")
 
 	local WindowName = AddThemeObject(SetProps(MakeElement("Label", WindowConfig.Name, 14), {
 		Size = UDim2.new(1, -30, 2, 0),
@@ -599,11 +705,12 @@ function OrionLib:MakeWindow(WindowConfig)
 		Size = UDim2.new(1, 0, 0, 1),
 		Position = UDim2.new(0, 0, 1, -1)
 	}), "Stroke")
-
+	-- size 1: UDim2.new(0, 550, 0, 450)
+	-- size 2: UDim2.new(0, 600, 0, 420)
 	local MainWindow = AddThemeObject(SetChildren(SetProps(MakeElement("RoundFrame", Color3.fromRGB(255, 255, 255), 0, 10), {
 		Parent = Orion,
 		Position = UDim2.new(0.5, -307, 0.5, -172),
-		Size = UDim2.new(0, 615, 0, 344),
+		Size = UDim2.new(0, 550, 0, 400),
 		ClipsDescendants = true
 	}), {
 		--SetProps(MakeElement("Image", "rbxassetid://3523728077"), {
@@ -629,13 +736,64 @@ function OrionLib:MakeWindow(WindowConfig)
 					Position = UDim2.new(0.5, 0, 0, 0)
 				}), "Stroke"), 
 				CloseBtn,
-				MinimizeBtn
+				MinimizeBtn,
 			}), "Second"), 
+			SettingsFrame
 		}),
 		DragPoint,
 		WindowStuff
 	}), "Main")
+	if false then
+		local AnimatedBorder = {};
+		-- StarterGui.ScreenGui.Frame.UIStroke
+		AnimatedBorder["3"] = Instance.new("UIStroke", MainWindow);
+		AnimatedBorder["3"]["Color"] = Color3.fromRGB(167, 20, 255);
+		AnimatedBorder["3"]["Thickness"] = 3;
 
+		-- StarterGui.ScreenGui.Frame.UIStroke.UIGradient
+		AnimatedBorder["4"] = Instance.new("UIGradient", AnimatedBorder["3"]);
+		AnimatedBorder["4"]["Color"] = ColorSequence.new{ColorSequenceKeypoint.new(0.000, Color3.fromRGB(138, 109, 255)),ColorSequenceKeypoint.new(0.230, Color3.fromRGB(116, 20, 222)),ColorSequenceKeypoint.new(0.518, Color3.fromRGB(148, 50, 235)),ColorSequenceKeypoint.new(1.000, Color3.fromRGB(213, 73, 253))};
+		
+		local speed = 0.5
+
+		game:GetService("RunService").Heartbeat:Connect(function(deltaTime)
+			AnimatedBorder["4"].Rotation += (speed * deltaTime * 360)
+		end)
+	end
+	-- shadow
+
+	local Shadow = {};
+
+
+	-- StarterGui.ScreenGui.Shadow
+	Shadow["2"] = Instance.new("Frame", MainWindow);
+	Shadow["2"]["ZIndex"] = 0;
+	Shadow["2"]["BorderSizePixel"] = 0;
+	Shadow["2"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255);
+	Shadow["2"]["AnchorPoint"] = Vector2.new(0.5, 0.5);
+	Shadow["2"]["BackgroundTransparency"] = 1;
+	Shadow["2"]["Size"] = UDim2.new(1, 35, 1, 35);
+	Shadow["2"]["Position"] = UDim2.new(0.5, 0, 0.5, 0);
+	Shadow["2"]["Name"] = [[Shadow]];
+	-- Attributes
+	Shadow["2"]:SetAttribute([[InitialTransparency]], 1);
+
+	-- StarterGui.ScreenGui.Shadow.Image
+	Shadow["3"] = Instance.new("ImageLabel", Shadow["2"]);
+	Shadow["3"]["ZIndex"] = 0;
+	Shadow["3"]["BorderSizePixel"] = 0;
+	Shadow["3"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255);
+	Shadow["3"]["ImageColor3"] = Color3.fromRGB(21, 21, 21);
+	Shadow["3"]["ImageTransparency"] = 0.699999988079071;
+	Shadow["3"]["AnchorPoint"] = Vector2.new(0.5, 0.5);
+	Shadow["3"]["Image"] = [[rbxassetid://5587865193]];
+	Shadow["3"]["Size"] = UDim2.new(1.600000023841858, 0, 1.2999999523162842, 0);
+	Shadow["3"]["Name"] = [[Image]];
+	Shadow["3"]["BackgroundTransparency"] = 1;
+	Shadow["3"]["Position"] = UDim2.new(0.5056074857711792, 0, 0.5, 0);
+	-- Attributes
+	Shadow["3"]:SetAttribute([[InitialTransparency]], 0.5);
+	MainWindow.ClipsDescendants = false
 	if WindowConfig.ShowIcon then
 		WindowName.Position = UDim2.new(0, 50, 0, -24)
 		local WindowIcon = SetProps(MakeElement("Image", WindowConfig.Icon), {
@@ -648,6 +806,16 @@ function OrionLib:MakeWindow(WindowConfig)
 	MakeDraggable(DragPoint, MainWindow)
 
 	AddConnection(CloseBtn.MouseButton1Up, function()
+		--local t = TweenService:Create(MainWindow, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {Size = UDim2.new(0, MainWindow.Size.X.Scale - 20, 0, MainWindow.Size.Y.Scale - 20)})
+		--t:Play()
+		--TweenService:Create(MainWindow, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {BackgroundTransparency = 1}):Play()
+		--TweenService:Create(Main.Topbar, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {BackgroundTransparency = 1}):Play()
+		--TweenService:Create(Main.Topbar.Divider, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {BackgroundTransparency = 1}):Play()
+		--:Create(Main.Topbar.CornerRepair, TweenInfo.new(0.3, Enum.EasingStyle.Quint), {BackgroundTransparency = 1}):Play()
+		--TweenService:Create(Main.Topbar.Title, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {TextTransparency = 1}):Play()
+		--TweenService:Create(Main.Shadow.Image, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {ImageTransparency = 1}):Play()
+		--TweenService:Create(Topbar.UIStroke, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {Transparency = 1}):Play()
+		--t.Completed:Wait()
 		MainWindow.Visible = false
 		UIHidden = true
 		OrionLib:MakeNotification({
@@ -666,13 +834,19 @@ function OrionLib:MakeWindow(WindowConfig)
 
 	AddConnection(MinimizeBtn.MouseButton1Up, function()
 		if Minimized then
-			TweenService:Create(MainWindow, TweenInfo.new(0.5, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {Size = UDim2.new(0, 615, 0, 344)}):Play()
+			TweenService:Create(MainWindow, TweenInfo.new(0.5, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {Size = UDim2.new(0, 550, 0, 400)}):Play()
 			MinimizeBtn.Ico.Image = "rbxassetid://7072719338"
+			SettingsFrame.Visible = true
+
 			wait(.02)
+			MainWindow.Shadow.Visible = false
 			MainWindow.ClipsDescendants = false
 			WindowStuff.Visible = true
 			WindowTopBarLine.Visible = true
 		else
+			SettingsFrame.Visible = false
+			MainWindow.Shadow.Visible = true
+
 			MainWindow.ClipsDescendants = true
 			WindowTopBarLine.Visible = false
 			MinimizeBtn.Ico.Image = "rbxassetid://7072720870"
@@ -680,6 +854,7 @@ function OrionLib:MakeWindow(WindowConfig)
 			TweenService:Create(MainWindow, TweenInfo.new(0.5, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {Size = UDim2.new(0, WindowName.TextBounds.X + 140, 0, 50)}):Play()
 			wait(0.1)
 			WindowStuff.Visible = false	
+
 		end
 		Minimized = not Minimized    
 	end)
@@ -716,19 +891,225 @@ function OrionLib:MakeWindow(WindowConfig)
 		LoadSequenceLogo:Destroy()
 		LoadSequenceText:Destroy()
 	end 
+	
+	-- prompt stuff --
+	local Prompt = {};
+
+	-- Players.yt4r5.PlayerGui.Orion.Frame.ScreenGui
+
+	-- Players.yt4r5.PlayerGui.Orion.Frame.ScreenGui.PromptCoverShadow
+	Prompt["2"] = Instance.new("Frame", MainWindow);
+	Prompt["2"]["BackgroundColor3"] = OrionLib.Themes[OrionLib.SelectedTheme].Main
+	Prompt["2"]["BackgroundTransparency"] = 0.30000001192092896;
+	Prompt["2"]["Size"] = MainWindow.Size;
+	Prompt["2"]["Name"] = [[PromptCoverShadow]];
+	Prompt["2"].ZIndex = 999
+	Prompt["2"].Visible = false
+	
+	local UICornerPromptCoverShadow = Instance.new("UICorner")
+	UICornerPromptCoverShadow.Parent = Prompt["2"]
+
+	-- Players.yt4r5.PlayerGui.Orion.Frame.ScreenGui.Prompt
+	Prompt["3"] = Instance.new("Frame", MainWindow);
+	Prompt["3"]["ZIndex"] = 999;
+	Prompt["3"]["BackgroundColor3"] =  OrionLib.Themes[OrionLib.SelectedTheme].Second
+	Prompt["3"]["AnchorPoint"] = Vector2.new(0.5, 0.5);
+	Prompt["3"]["Size"] = UDim2.new(0, 300, 0, 200);
+	Prompt["3"]["BorderColor3"] = Color3.fromRGB(31, 31, 31);
+	Prompt["3"]["Position"] = UDim2.new(0.5, 0, 0.5, 0);
+	Prompt["3"]["Name"] = [[Prompt]];
+	Prompt["3"].Visible = false
+
+	-- Players.yt4r5.PlayerGui.Orion.Frame.ScreenGui.Prompt.Title
+	Prompt["4"] = Instance.new("TextLabel", Prompt["3"]);
+	Prompt["4"]["ZIndex"] = 999;
+	Prompt["4"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255);
+	Prompt["4"]["TextSize"] = 22;
+	Prompt["4"]["TextColor3"] = Color3.fromRGB(255, 255, 255);
+	Prompt["4"]["AnchorPoint"] = Vector2.new(0.5, 0);
+	Prompt["4"]["Size"] = UDim2.new(0, 200, 0, 50);
+	Prompt["4"]["Text"] = [[This is a prompt title]];
+	Prompt["4"]["Name"] = [[Title]];
+	Prompt["4"]["Font"] = Enum.Font.GothamBold;
+	Prompt["4"]["BackgroundTransparency"] = 1;
+	Prompt["4"]["Position"] = UDim2.new(0.5, 0, 0, 0);
+	Prompt["4"].Visible = false
+
+	-- Players.yt4r5.PlayerGui.Orion.Frame.ScreenGui.Prompt.UICorner
+	Prompt["5"] = Instance.new("UICorner", Prompt["3"]);
+
+
+	-- Players.yt4r5.PlayerGui.Orion.Frame.ScreenGui.Prompt.Description
+	Prompt["6"] = Instance.new("TextLabel", Prompt["3"]);
+	Prompt["6"]["TextWrapped"] = true;
+	Prompt["6"]["ZIndex"] = 999;
+	Prompt["6"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255);
+	Prompt["6"]["TextSize"] = 14;
+	Prompt["6"]["TextColor3"] = Color3.fromRGB(171, 171, 171);
+	Prompt["6"]["AnchorPoint"] = Vector2.new(0.5, 0.5);
+	Prompt["6"]["Size"] = UDim2.new(0, 280, 0, 150);
+	Prompt["6"]["Text"] = [[Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque non felis facilisis, finibus massa et, facilisis lorem. Vivamus vel erat ut metus fermentum mattis aliquam id lacus. In quam metus,]];
+	Prompt["6"]["Name"] = [[Description]];
+	Prompt["6"]["Font"] = Enum.Font.GothamBold;
+	Prompt["6"]["BackgroundTransparency"] = 1;
+	Prompt["6"]["Position"] = UDim2.new(0.5, 0, 0.5, 0);
+	Prompt["6"].Visible = false
+
+	-- Players.yt4r5.PlayerGui.Orion.Frame.ScreenGui.Prompt.OkButton
+	Prompt["7"] = Instance.new("Frame", Prompt["3"]);
+	Prompt["7"]["ZIndex"] = 999;
+	Prompt["7"]["BorderSizePixel"] = 0;
+	Prompt["7"]["BackgroundColor3"] =  OrionLib.Themes[OrionLib.SelectedTheme].Second
+	Prompt["7"]["AnchorPoint"] = Vector2.new(0.5, 0.5);
+	Prompt["7"]["Size"] = UDim2.new(0.5, 0, 0, 33);
+	Prompt["7"]["Position"] = UDim2.new(0.5, 0, 0.8999999761581421, -5);
+	Prompt["7"]["Name"] = [[OkButton]];
+	Prompt["7"].Visible = false
+
+	-- Players.yt4r5.PlayerGui.Orion.Frame.ScreenGui.Prompt.OkButton.UICorner
+	Prompt["8"] = Instance.new("UICorner", Prompt["7"]);
+	Prompt["8"]["CornerRadius"] = UDim.new(0, 5);
+
+	-- Players.yt4r5.PlayerGui.Orion.Frame.ScreenGui.Prompt.OkButton.Content
+	Prompt["9"] = Instance.new("TextLabel", Prompt["7"]);
+	Prompt["9"]["ZIndex"] = 999;
+	Prompt["9"]["RichText"] = true;
+	Prompt["9"]["TextSize"] = 15;
+	Prompt["9"]["TextColor3"] = Color3.fromRGB(241, 241, 241);
+	Prompt["9"]["Size"] = UDim2.new(1, 0, 1, 0);
+	Prompt["9"]["Text"] = [[Okay]];
+	Prompt["9"]["Name"] = [[Content]];
+	Prompt["9"]["Font"] = Enum.Font.GothamBold;
+	Prompt["9"]["BackgroundTransparency"] = 1;
+	Prompt["9"].Visible = false
+
+	-- Players.yt4r5.PlayerGui.Orion.Frame.ScreenGui.Prompt.OkButton.UIStroke
+	Prompt["a"] = Instance.new("UIStroke", Prompt["7"]);
+	Prompt["a"]["Color"] = Color3.fromRGB(61, 61, 61);
+
+	-- Players.yt4r5.PlayerGui.Orion.Frame.ScreenGui.Prompt.OkButton.TextButton
+	Prompt["b"] = Instance.new("TextButton", Prompt["7"]);
+	Prompt["b"]["ZIndex"] = 999;
+	Prompt["b"]["BorderSizePixel"] = 0;
+	Prompt["b"]["AutoButtonColor"] = false;
+	Prompt["b"]["Size"] = UDim2.new(1, 0, 1, 0);
+	Prompt["b"]["Text"] = [[]];
+	Prompt["b"]["BackgroundTransparency"] = 1;
+	Prompt["b"].Visible = false
+	
+	
+	--[=[ d888b  db    db d888888b      .d888b.      db      db    db  .d8b. 88' Y8b 88    88   `88'        VP  `8D      88      88    88 d8' `8b 88      88    88    88            odD'      88      88    88 88ooo88 88  ooo 88    88    88          .88'        88      88    88 88~~~88 88. ~8~ 88b  d88   .88.        j88.         88booo. 88b  d88 88   88 Y888P  ~Y8888P' Y888888P      888888D      Y88888P ~Y8888P' YP   YP  CONVERTER ]=] -- Instances: 17 | Scripts: 0 | Modules: 0 local AnimatedBorder = {}; -- Players.yt4r5.PlayerGui.Orion.Frame.ScreenGui AnimatedBorder["1"] = Instance.new("ScreenGui", game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")); AnimatedBorder["1"]["ZIndexBehavior"] = Enum.ZIndexBehavior.Sibling; -- Players.yt4r5.PlayerGui.Orion.Frame.ScreenGui.Prompt AnimatedBorder["2"] = Instance.new("Frame", AnimatedBorder["1"]); AnimatedBorder["2"]["ZIndex"] = 999; AnimatedBorder["2"]["BackgroundColor3"] = Color3.fromRGB(32, 32, 32); AnimatedBorder["2"]["AnchorPoint"] = Vector2.new(0.5, 0.5); AnimatedBorder["2"]["BackgroundTransparency"] = 1; AnimatedBorder["2"]["Size"] = UDim2.new(0, 300, 0, 200); AnimatedBorder["2"]["BorderColor3"] = Color3.fromRGB(32, 32, 32); AnimatedBorder["2"]["Position"] = UDim2.new(0.5, 0, 0.5, 0); AnimatedBorder["2"]["Visible"] = false; AnimatedBorder["2"]["Name"] = [[Prompt]]; -- Players.yt4r5.PlayerGui.Orion.Frame.ScreenGui.Prompt.Title AnimatedBorder["3"] = Instance.new("TextLabel", AnimatedBorder["2"]); AnimatedBorder["3"]["ZIndex"] = 999; AnimatedBorder["3"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255); AnimatedBorder["3"]["TextTransparency"] = 1; AnimatedBorder["3"]["TextSize"] = 22; AnimatedBorder["3"]["TextColor3"] = Color3.fromRGB(255, 255, 255); AnimatedBorder["3"]["AnchorPoint"] = Vector2.new(0.5, 0); AnimatedBorder["3"]["Visible"] = false; AnimatedBorder["3"]["Size"] = UDim2.new(0, 200, 0, 50); AnimatedBorder["3"]["Text"] = [[This is a prompt title]]; AnimatedBorder["3"]["Name"] = [[Title]]; AnimatedBorder["3"]["Font"] = Enum.Font.GothamBold; AnimatedBorder["3"]["BackgroundTransparency"] = 1; AnimatedBorder["3"]["Position"] = UDim2.new(0.5, 0, 0, 0); -- Players.yt4r5.PlayerGui.Orion.Frame.ScreenGui.Prompt.UICorner AnimatedBorder["4"] = Instance.new("UICorner", AnimatedBorder["2"]); -- Players.yt4r5.PlayerGui.Orion.Frame.ScreenGui.Prompt.Description AnimatedBorder["5"] = Instance.new("TextLabel", AnimatedBorder["2"]); AnimatedBorder["5"]["TextWrapped"] = true; AnimatedBorder["5"]["ZIndex"] = 999; AnimatedBorder["5"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255); AnimatedBorder["5"]["TextTransparency"] = 1; AnimatedBorder["5"]["TextSize"] = 14; AnimatedBorder["5"]["TextColor3"] = Color3.fromRGB(172, 172, 172); AnimatedBorder["5"]["AnchorPoint"] = Vector2.new(0.5, 0.5); AnimatedBorder["5"]["Visible"] = false; AnimatedBorder["5"]["Size"] = UDim2.new(0, 280, 0, 150); AnimatedBorder["5"]["Text"] = [[Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque non felis facilisis, finibus massa et, facilisis lorem. Vivamus vel erat ut metus fermentum mattis aliquam id lacus. In quam metus,]]; AnimatedBorder["5"]["Name"] = [[Description]]; AnimatedBorder["5"]["Font"] = Enum.Font.GothamBold; AnimatedBorder["5"]["BackgroundTransparency"] = 1; AnimatedBorder["5"]["Position"] = UDim2.new(0.5, 0, 0.5, 0); -- Players.yt4r5.PlayerGui.Orion.Frame.ScreenGui.Prompt.Buttons AnimatedBorder["6"] = Instance.new("Frame", AnimatedBorder["2"]); AnimatedBorder["6"]["ZIndex"] = 1000; AnimatedBorder["6"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255); AnimatedBorder["6"]["AnchorPoint"] = Vector2.new(0.5, 0.5); AnimatedBorder["6"]["BackgroundTransparency"] = 1; AnimatedBorder["6"]["Size"] = UDim2.new(1, 0, 0, 100); AnimatedBorder["6"]["Position"] = UDim2.new(0.5, 0, 0.5, 30); AnimatedBorder["6"]["Name"] = [[Buttons]]; -- Players.yt4r5.PlayerGui.Orion.Frame.ScreenGui.Prompt.Buttons.OkButton AnimatedBorder["7"] = Instance.new("Frame", AnimatedBorder["6"]); AnimatedBorder["7"]["ZIndex"] = 1001; AnimatedBorder["7"]["BorderSizePixel"] = 0; AnimatedBorder["7"]["BackgroundColor3"] = Color3.fromRGB(34, 34, 34); AnimatedBorder["7"]["AnchorPoint"] = Vector2.new(0.5, 0.5); AnimatedBorder["7"]["BackgroundTransparency"] = 1; AnimatedBorder["7"]["Size"] = UDim2.new(0.20000000298023224, 0, 0, 33); AnimatedBorder["7"]["Position"] = UDim2.new(0.5, 0, 0.8999999761581421, -5); AnimatedBorder["7"]["Visible"] = false; AnimatedBorder["7"]["Name"] = [[OkButton]]; -- Players.yt4r5.PlayerGui.Orion.Frame.ScreenGui.Prompt.Buttons.OkButton.UICorner AnimatedBorder["8"] = Instance.new("UICorner", AnimatedBorder["7"]); AnimatedBorder["8"]["CornerRadius"] = UDim.new(0, 5); -- Players.yt4r5.PlayerGui.Orion.Frame.ScreenGui.Prompt.Buttons.OkButton.Content AnimatedBorder["9"] = Instance.new("TextLabel", AnimatedBorder["7"]); AnimatedBorder["9"]["ZIndex"] = 999; AnimatedBorder["9"]["RichText"] = true; AnimatedBorder["9"]["TextTransparency"] = 1; AnimatedBorder["9"]["TextSize"] = 15; AnimatedBorder["9"]["TextColor3"] = Color3.fromRGB(242, 242, 242); AnimatedBorder["9"]["Visible"] = false; AnimatedBorder["9"]["Size"] = UDim2.new(1, 0, 1, 0); AnimatedBorder["9"]["Text"] = [[Dismiss]]; AnimatedBorder["9"]["Name"] = [[Content]]; AnimatedBorder["9"]["Font"] = Enum.Font.GothamBold; AnimatedBorder["9"]["BackgroundTransparency"] = 1; -- Players.yt4r5.PlayerGui.Orion.Frame.ScreenGui.Prompt.Buttons.OkButton.UIStroke AnimatedBorder["a"] = Instance.new("UIStroke", AnimatedBorder["7"]); AnimatedBorder["a"]["Color"] = Color3.fromRGB(62, 62, 62); AnimatedBorder["a"]["Transparency"] = 1; -- Players.yt4r5.PlayerGui.Orion.Frame.ScreenGui.Prompt.Buttons.OkButton.TextButton AnimatedBorder["b"] = Instance.new("TextButton", AnimatedBorder["7"]); AnimatedBorder["b"]["ZIndex"] = 999; AnimatedBorder["b"]["BorderSizePixel"] = 0; AnimatedBorder["b"]["AutoButtonColor"] = false; AnimatedBorder["b"]["TextTransparency"] = 1; AnimatedBorder["b"]["Visible"] = false; AnimatedBorder["b"]["Size"] = UDim2.new(1, 0, 1, 0); AnimatedBorder["b"]["Text"] = [[]]; AnimatedBorder["b"]["BackgroundTransparency"] = 1; -- Players.yt4r5.PlayerGui.Orion.Frame.ScreenGui.Prompt.Buttons.UIListLayout AnimatedBorder["c"] = Instance.new("UIListLayout", AnimatedBorder["6"]); AnimatedBorder["c"]["VerticalAlignment"] = Enum.VerticalAlignment.Bottom; AnimatedBorder["c"]["FillDirection"] = Enum.FillDirection.Horizontal; AnimatedBorder["c"]["HorizontalAlignment"] = Enum.HorizontalAlignment.Center; AnimatedBorder["c"]["Padding"] = UDim.new(0, 6); AnimatedBorder["c"]["SortOrder"] = Enum.SortOrder.LayoutOrder; -- Players.yt4r5.PlayerGui.Orion.Frame.ScreenGui.Prompt.Buttons.OkButton AnimatedBorder["d"] = Instance.new("Frame", AnimatedBorder["6"]); AnimatedBorder["d"]["ZIndex"] = 1001; AnimatedBorder["d"]["BorderSizePixel"] = 0; AnimatedBorder["d"]["BackgroundColor3"] = Color3.fromRGB(34, 34, 34); AnimatedBorder["d"]["AnchorPoint"] = Vector2.new(0.5, 0.5); AnimatedBorder["d"]["BackgroundTransparency"] = 1; AnimatedBorder["d"]["Size"] = UDim2.new(0.20000000298023224, 0, 0, 33); AnimatedBorder["d"]["Position"] = UDim2.new(0.5, 0, 0.8999999761581421, -5); AnimatedBorder["d"]["Name"] = [[OkButton]]; -- Players.yt4r5.PlayerGui.Orion.Frame.ScreenGui.Prompt.Buttons.OkButton.UICorner AnimatedBorder["e"] = Instance.new("UICorner", AnimatedBorder["d"]); AnimatedBorder["e"]["CornerRadius"] = UDim.new(0, 5); -- Players.yt4r5.PlayerGui.Orion.Frame.ScreenGui.Prompt.Buttons.OkButton.Content AnimatedBorder["f"] = Instance.new("TextLabel", AnimatedBorder["d"]); AnimatedBorder["f"]["ZIndex"] = 999; AnimatedBorder["f"]["RichText"] = true; AnimatedBorder["f"]["TextSize"] = 15; AnimatedBorder["f"]["TextColor3"] = Color3.fromRGB(242, 242, 242); AnimatedBorder["f"]["Size"] = UDim2.new(1, 0, 1, 0); AnimatedBorder["f"]["Text"] = [[Ok]]; AnimatedBorder["f"]["Name"] = [[Content]]; AnimatedBorder["f"]["Font"] = Enum.Font.GothamBold; AnimatedBorder["f"]["BackgroundTransparency"] = 1; -- Players.yt4r5.PlayerGui.Orion.Frame.ScreenGui.Prompt.Buttons.OkButton.UIStroke AnimatedBorder["10"] = Instance.new("UIStroke", AnimatedBorder["d"]); AnimatedBorder["10"]["Color"] = Color3.fromRGB(62, 62, 62); -- Players.yt4r5.PlayerGui.Orion.Frame.ScreenGui.Prompt.Buttons.OkButton.TextButton AnimatedBorder["11"] = Instance.new("TextButton", AnimatedBorder["d"]); AnimatedBorder["11"]["ZIndex"] = 999; AnimatedBorder["11"]["BorderSizePixel"] = 0; AnimatedBorder["11"]["AutoButtonColor"] = false; AnimatedBorder["11"]["Size"] = UDim2.new(1, 0, 1, 0); AnimatedBorder["11"]["Text"] = [[]]; AnimatedBorder["11"]["BackgroundTransparency"] = 1; return AnimatedBorder["1"], require;
+	
+	local PromptShadow = Prompt["2"]
+	local PromptBaseFrame = Prompt["3"]
+	
+	local promptCallback = function() end
+	
+	local function makePromptVisible(state, options)
+		for k, v in pairs(Prompt) do
+			if not v:IsA("UIStroke") and not v:IsA("UICorner") then
+				v.Transparency = 1
+				v.Visible = state
+			end
+		end
+			
+		if state then
+			Prompt["4"].Text = options.Title
+			Prompt["6"].Text = options.Description
+
+			tween(PromptShadow, {BackgroundTransparency = 0.3}, 0.25)
+			tween(PromptBaseFrame, {BackgroundTransparency = 0}, 0.25)
+
+			for k, v in pairs(Prompt) do
+				if not v:IsA("UICorner") then
+					if string.find(v.ClassName, "Text") then
+						tween(v, {TextTransparency = 0}, 0.25)
+					end
+					if v:IsA("UIStroke") then
+						tween(v, {Transparency = 0}, 0.25)
+					end
+				end
+			end
+		end
+	end
+	
+	AddConnection(Prompt.b.MouseButton1Down, function()
+		tween(PromptShadow, {BackgroundTransparency = 1}, 0.25)
+		local t = tween(PromptBaseFrame, {BackgroundTransparency = 1}, 0.25)
+
+		for k, v in pairs(Prompt) do
+			if not v:IsA("UICorner") then
+				if string.find(v.ClassName, "Text") then
+					tween(v, {TextTransparency = 1}, 0.25)
+				end
+				if v:IsA("UIStroke") then
+					tween(v, {Transparency = 1}, 0.25)
+				end
+			end
+		end
+		t.Completed:Wait()
+		makePromptVisible(false)
+	end)
+	
+	-- end prompt stuff --
 
 	if WindowConfig.IntroEnabled then
 		LoadSequence()
 	end	
-
+	
 	local TabFunction = {}
+	
+	function TabFunction:ShowPrompt(promptOptions)
+		local options = {
+			Title = promptOptions.Title or "No Title",
+			Description = promptOptions.Description or "No Description",
+			Callback = promptOptions.Callback or function() end
+		}
+		promptCallback = options.Callback
+		makePromptVisible(true, options)
+	end
+	
+	function TabFunction:ShowTabWithName(name) 
+		
+		for _, Tab in next, TabHolder:GetChildren() do
+			if Tab:IsA("TextButton") then
+				Tab.Title.Font = Enum.Font.GothamSemibold
+				TweenService:Create(Tab.Ico, TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {ImageTransparency = 0.4}):Play()
+				TweenService:Create(Tab.Title, TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {TextTransparency = 0.4}):Play()
+			end    
+		end
+		local cont
+		for _, ItemContainer in next, MainWindow:GetChildren() do
+			if string.find(ItemContainer.Name, "ItemContainer") then
+				ItemContainer.Visible = false
+			end
+			if ItemContainer.Name == "ItemContainerSettings" then
+				cont = ItemContainer
+			end
+		end   
+		if cont then
+			cont.Visible = true
+		else
+			print('didnt find container')
+		end
+	end
+	
+	-- settings stuff
+	AddConnection(ThreeDotsBtn.MouseButton1Down, function() 
+		TabFunction:ShowTabWithName("Settings")
+	end)
+	-- end settings stuff
+	
 	function TabFunction:MakeTab(TabConfig)
 		TabConfig = TabConfig or {}
 		TabConfig.Name = TabConfig.Name or "Tab"
 		TabConfig.Icon = TabConfig.Icon or ""
 		TabConfig.PremiumOnly = TabConfig.PremiumOnly or false
-
-		local TabFrame = SetChildren(SetProps(MakeElement("Button"), {
+		TabConfig.HiddenInTabList = TabConfig.HiddenInTabList or false
+		
+		local TabFrame
+		
+		TabFrame = SetChildren(SetProps(MakeElement("Button"), {
 			Size = UDim2.new(1, 0, 0, 30),
 			Parent = TabHolder
 		}), {
@@ -747,21 +1128,24 @@ function OrionLib:MakeWindow(WindowConfig)
 				Name = "Title"
 			}), "Text")
 		})
+		
 
 		if GetIcon(TabConfig.Icon) ~= nil then
 			TabFrame.Ico.Image = GetIcon(TabConfig.Icon)
 		end	
-
+		
 		local Container = AddThemeObject(SetChildren(SetProps(MakeElement("ScrollFrame", Color3.fromRGB(255, 255, 255), 5), {
 			Size = UDim2.new(1, -150, 1, -50),
 			Position = UDim2.new(0, 150, 0, 50),
 			Parent = MainWindow,
 			Visible = false,
-			Name = "ItemContainer"
+			Name = "ItemContainer" .. TabConfig.Name,
+			ScrollBarThickness = 5,
+			--ScrollBarImageTransparency = 0.4
 		}), {
 			MakeElement("List", 0, 6),
 			MakeElement("Padding", 15, 10, 10, 15)
-		}), "Divider")
+		}), "Second")
 
 		AddConnection(Container.UIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"), function()
 			Container.CanvasSize = UDim2.new(0, 0, 0, Container.UIListLayout.AbsoluteContentSize.Y + 30)
@@ -773,8 +1157,9 @@ function OrionLib:MakeWindow(WindowConfig)
 			TabFrame.Title.TextTransparency = 0
 			TabFrame.Title.Font = Enum.Font.GothamBlack
 			Container.Visible = true
+			
 		end    
-
+		
 		AddConnection(TabFrame.MouseButton1Click, function()
 			for _, Tab in next, TabHolder:GetChildren() do
 				if Tab:IsA("TextButton") then
@@ -784,7 +1169,7 @@ function OrionLib:MakeWindow(WindowConfig)
 				end    
 			end
 			for _, ItemContainer in next, MainWindow:GetChildren() do
-				if ItemContainer.Name == "ItemContainer" then
+				if string.find(ItemContainer.Name, "ItemContainer") then
 					ItemContainer.Visible = false
 				end    
 			end  
@@ -793,9 +1178,11 @@ function OrionLib:MakeWindow(WindowConfig)
 			TabFrame.Title.Font = Enum.Font.GothamBlack
 			Container.Visible = true   
 		end)
+		
 
 		local function GetElements(ItemParent)
 			local ElementFunction = {}
+			
 			function ElementFunction:AddLabel(Text)
 				local LabelFrame = AddThemeObject(SetChildren(SetProps(MakeElement("RoundFrame", Color3.fromRGB(255, 255, 255), 0, 5), {
 					Size = UDim2.new(1, 0, 0, 30),
@@ -915,20 +1302,21 @@ function OrionLib:MakeWindow(WindowConfig)
 				ToggleConfig.Name = ToggleConfig.Name or "Toggle"
 				ToggleConfig.Default = ToggleConfig.Default or false
 				ToggleConfig.Callback = ToggleConfig.Callback or function() end
-				ToggleConfig.Color = ToggleConfig.Color or Color3.fromRGB(9, 99, 195)
+				ToggleConfig.Color = ToggleConfig.Color or OrionLib.Themes[OrionLib.SelectedTheme].Accent
 				ToggleConfig.Flag = ToggleConfig.Flag or nil
 				ToggleConfig.Save = ToggleConfig.Save or false
 
 				local Toggle = {Value = ToggleConfig.Default, Save = ToggleConfig.Save}
 
 				local Click = SetProps(MakeElement("Button"), {
-					Size = UDim2.new(1, 0, 1, 0)
+					Size = UDim2.new(1, 0, 1, 0),
+
 				})
 
-				local ToggleBox = SetChildren(SetProps(MakeElement("RoundFrame", ToggleConfig.Color, 0, 4), {
+				local ToggleBox = AddThemeObject(SetChildren(SetProps(MakeElement("RoundFrame", ToggleConfig.Color, 0, 4), {
 					Size = UDim2.new(0, 24, 0, 24),
 					Position = UDim2.new(1, -24, 0.5, 0),
-					AnchorPoint = Vector2.new(0.5, 0.5)
+					AnchorPoint = Vector2.new(0.5, 0.5),
 				}), {
 					SetProps(MakeElement("Stroke"), {
 						Color = ToggleConfig.Color,
@@ -942,8 +1330,8 @@ function OrionLib:MakeWindow(WindowConfig)
 						ImageColor3 = Color3.fromRGB(255, 255, 255),
 						Name = "Ico"
 					}),
-				})
-
+				}), "Main")
+				
 				local ToggleFrame = AddThemeObject(SetChildren(SetProps(MakeElement("RoundFrame", Color3.fromRGB(255, 255, 255), 0, 5), {
 					Size = UDim2.new(1, 0, 0, 38),
 					Parent = ItemParent
@@ -961,7 +1349,7 @@ function OrionLib:MakeWindow(WindowConfig)
 
 				function Toggle:Set(Value)
 					Toggle.Value = Value
-					TweenService:Create(ToggleBox, TweenInfo.new(0.3, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {BackgroundColor3 = Toggle.Value and ToggleConfig.Color or OrionLib.Themes.Default.Divider}):Play()
+					TweenService:Create(ToggleBox, TweenInfo.new(0.3, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {BackgroundColor3 = Toggle.Value and ToggleConfig.Color or OrionLib.Themes[OrionLib.SelectedTheme].Main}):Play()
 					TweenService:Create(ToggleBox.Stroke, TweenInfo.new(0.3, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {Color = Toggle.Value and ToggleConfig.Color or OrionLib.Themes.Default.Stroke}):Play()
 					TweenService:Create(ToggleBox.Ico, TweenInfo.new(0.3, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {ImageTransparency = Toggle.Value and 0 or 1, Size = Toggle.Value and UDim2.new(0, 20, 0, 20) or UDim2.new(0, 8, 0, 8)}):Play()
 					ToggleConfig.Callback(Toggle.Value)
@@ -992,6 +1380,186 @@ function OrionLib:MakeWindow(WindowConfig)
 				end	
 				return Toggle
 			end  
+			
+			function ElementFunction:AddSliderToggle(SliderConfig)
+				SliderConfig = SliderConfig or {}
+				SliderConfig.Name = SliderConfig.Name or "Slider"
+				SliderConfig.Min = SliderConfig.Min or 0
+				SliderConfig.Max = SliderConfig.Max or 100
+				SliderConfig.Increment = SliderConfig.Increment or 1
+				SliderConfig.Default = SliderConfig.Default or 50
+				SliderConfig.Callback = SliderConfig.Callback or function() end
+				SliderConfig.ValueName = SliderConfig.ValueName or ""
+				SliderConfig.Color = SliderConfig.Color or OrionLib.Themes[OrionLib.SelectedTheme].Accent
+				SliderConfig.Flag = SliderConfig.Flag or nil
+				SliderConfig.Save = SliderConfig.Save or false
+				SliderConfig.OnUnToggled = SliderConfig.OnUnToggled or function() end
+				local ToggleConfig = {}
+				ToggleConfig.Name = ToggleConfig.Name or "Toggle"
+				ToggleConfig.Default = ToggleConfig.Default or false
+				ToggleConfig.Callback = ToggleConfig.Callback or function() end
+				ToggleConfig.Color = ToggleConfig.Color or OrionLib.Themes[OrionLib.SelectedTheme].Accent
+				ToggleConfig.Flag = ToggleConfig.Flag or nil
+				ToggleConfig.Save = ToggleConfig.Save or false
+
+
+				local Slider = {Value = SliderConfig.Default, Save = SliderConfig.Save}
+				local Dragging = false
+
+				local SliderDrag = SetChildren(SetProps(MakeElement("RoundFrame", SliderConfig.Color, 0, 5), {
+					Size = UDim2.new(0, 0, 1, 0),
+					BackgroundTransparency = 0.3,
+					ClipsDescendants = true
+				}), {
+					AddThemeObject(SetProps(MakeElement("Label", "value", 13), {
+						Size = UDim2.new(1, -12, 0, 14),
+						Position = UDim2.new(0, 12, 0, 6),
+						Font = Enum.Font.GothamBold,
+						Name = "Value",
+						TextTransparency = 0
+					}), "Text")
+				})
+
+				local SliderBar = SetChildren(SetProps(MakeElement("RoundFrame", SliderConfig.Color, 0, 5), {
+					Size = UDim2.new(1, -24, 0, 26),
+					Position = UDim2.new(0, 12, 0, 39),
+					BackgroundTransparency = 0.9
+				}), {
+					SetProps(MakeElement("Stroke"), {
+						Color = SliderConfig.Color
+					}),
+					AddThemeObject(SetProps(MakeElement("Label", "value", 13), {
+						Size = UDim2.new(1, -12, 0, 14),
+						Position = UDim2.new(0, 12, 0, 39),
+						Font = Enum.Font.GothamBold,
+						Name = "Value",
+						TextTransparency = 1
+					}), "Text"),
+					SliderDrag
+				})
+
+				local SliderFrame = AddThemeObject(SetChildren(SetProps(MakeElement("RoundFrame", Color3.fromRGB(255, 255, 255), 0, 4), {
+					Size = UDim2.new(1, 0, 0, 80),
+					Parent = ItemParent
+				}), {
+					AddThemeObject(MakeElement("Stroke"), "Stroke"),
+					SliderBar
+				}), "Second")
+
+				SliderBar.InputBegan:Connect(function(Input)
+					if Input.UserInputType == Enum.UserInputType.MouseButton1 then 
+						Dragging = true 
+					end 
+				end)
+				SliderBar.InputEnded:Connect(function(Input) 
+					if Input.UserInputType == Enum.UserInputType.MouseButton1 then 
+						Dragging = false 
+					end 
+				end)
+
+				UserInputService.InputChanged:Connect(function(Input)
+					if Dragging and Input.UserInputType == Enum.UserInputType.MouseMovement then 
+						local SizeScale = math.clamp((Input.Position.X - SliderBar.AbsolutePosition.X) / SliderBar.AbsoluteSize.X, 0, 1)
+						Slider:Set(SliderConfig.Min + ((SliderConfig.Max - SliderConfig.Min) * SizeScale)) 
+						SaveCfg(game.GameId)
+					end
+				end)
+				
+				local toggled = ToggleConfig.Default
+
+				function Slider:Set(Value)
+					self.Value = math.clamp(Round(Value, SliderConfig.Increment), SliderConfig.Min, SliderConfig.Max)
+					TweenService:Create(SliderDrag,TweenInfo.new(.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),{Size = UDim2.fromScale((self.Value - SliderConfig.Min) / (SliderConfig.Max - SliderConfig.Min), 1)}):Play()
+					SliderBar.Value.Text = tostring(self.Value) .. " " .. SliderConfig.ValueName
+					SliderDrag.Value.Text = tostring(self.Value) .. " " .. SliderConfig.ValueName
+					if toggled then
+						SliderConfig.Callback(self.Value)
+					end
+				end      
+
+				Slider:Set(Slider.Value)
+				if SliderConfig.Flag then				
+					OrionLib.Flags[SliderConfig.Flag] = Slider
+				end
+				
+				local Toggle = {Value = ToggleConfig.Default, Save = ToggleConfig.Save}
+
+				local Click = SetProps(MakeElement("Button"), {
+					Size = UDim2.new(1, 0, 1, 0),
+
+				})
+
+				local ToggleBox = AddThemeObject(SetChildren(SetProps(MakeElement("RoundFrame", ToggleConfig.Color, 0, 4), {
+					Size = UDim2.new(0, 24, 0, 24),
+					Position = UDim2.new(1, -24, 0.5, 0),
+					AnchorPoint = Vector2.new(0.5, 0.5),
+				}), {
+					SetProps(MakeElement("Stroke"), {
+						Color = ToggleConfig.Color,
+						Name = "Stroke",
+						Transparency = 0.5
+					}),
+					SetProps(MakeElement("Image", "rbxassetid://3944680095"), {
+						Size = UDim2.new(0, 20, 0, 20),
+						AnchorPoint = Vector2.new(0.5, 0.5),
+						Position = UDim2.new(0.5, 0, 0.5, 0),
+						ImageColor3 = Color3.fromRGB(255, 255, 255),
+						Name = "Ico"
+					}),
+				}), "Main")
+
+				local ToggleFrame = AddThemeObject(SetChildren(SetProps(MakeElement("RoundFrame", Color3.fromRGB(255, 255, 255), 0, 5), {
+					Size = UDim2.new(1, 0, 0, 38),
+					Parent = SliderFrame
+				}), {
+					AddThemeObject(SetProps(MakeElement("Label", ToggleConfig.Name, 15), {
+						Size = UDim2.new(1, -12, 1, 0),
+						Position = UDim2.new(0, 12, 0, 0),
+						Font = Enum.Font.GothamBold,
+						Name = "Content"
+					}), "Text"),
+					ToggleBox,
+					Click
+				}), "Second")
+
+				function Toggle:Set(Value)
+					Toggle.Value = Value
+					toggled = Value
+					TweenService:Create(ToggleBox, TweenInfo.new(0.3, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {BackgroundColor3 = Toggle.Value and ToggleConfig.Color or OrionLib.Themes[OrionLib.SelectedTheme].Main}):Play()
+					TweenService:Create(ToggleBox.Stroke, TweenInfo.new(0.3, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {Color = Toggle.Value and ToggleConfig.Color or OrionLib.Themes.Default.Stroke}):Play()
+					TweenService:Create(ToggleBox.Ico, TweenInfo.new(0.3, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {ImageTransparency = Toggle.Value and 0 or 1, Size = Toggle.Value and UDim2.new(0, 20, 0, 20) or UDim2.new(0, 8, 0, 8)}):Play()
+					ToggleConfig.Callback(Toggle.Value)
+					if not toggled then
+						SliderConfig.OnUnToggled(Slider.Value)
+					end
+				end    
+
+				Toggle:Set(Toggle.Value)
+
+				AddConnection(Click.MouseEnter, function()
+					TweenService:Create(ToggleFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {BackgroundColor3 = Color3.fromRGB(OrionLib.Themes[OrionLib.SelectedTheme].Second.R * 255 + 3, OrionLib.Themes[OrionLib.SelectedTheme].Second.G * 255 + 3, OrionLib.Themes[OrionLib.SelectedTheme].Second.B * 255 + 3)}):Play()
+				end)
+
+				AddConnection(Click.MouseLeave, function()
+					TweenService:Create(ToggleFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {BackgroundColor3 = OrionLib.Themes[OrionLib.SelectedTheme].Second}):Play()
+				end)
+
+				AddConnection(Click.MouseButton1Up, function()
+					TweenService:Create(ToggleFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {BackgroundColor3 = Color3.fromRGB(OrionLib.Themes[OrionLib.SelectedTheme].Second.R * 255 + 3, OrionLib.Themes[OrionLib.SelectedTheme].Second.G * 255 + 3, OrionLib.Themes[OrionLib.SelectedTheme].Second.B * 255 + 3)}):Play()
+					SaveCfg(game.GameId)
+					Toggle:Set(not Toggle.Value)
+				end)
+
+				AddConnection(Click.MouseButton1Down, function()
+					TweenService:Create(ToggleFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {BackgroundColor3 = Color3.fromRGB(OrionLib.Themes[OrionLib.SelectedTheme].Second.R * 255 + 6, OrionLib.Themes[OrionLib.SelectedTheme].Second.G * 255 + 6, OrionLib.Themes[OrionLib.SelectedTheme].Second.B * 255 + 6)}):Play()
+				end)
+
+				if ToggleConfig.Flag then
+					OrionLib.Flags[ToggleConfig.Flag] = Toggle
+				end					
+				return Slider
+			end
+			
 			function ElementFunction:AddSlider(SliderConfig)
 				SliderConfig = SliderConfig or {}
 				SliderConfig.Name = SliderConfig.Name or "Slider"
@@ -1001,7 +1569,7 @@ function OrionLib:MakeWindow(WindowConfig)
 				SliderConfig.Default = SliderConfig.Default or 50
 				SliderConfig.Callback = SliderConfig.Callback or function() end
 				SliderConfig.ValueName = SliderConfig.ValueName or ""
-				SliderConfig.Color = SliderConfig.Color or Color3.fromRGB(9, 149, 98)
+				SliderConfig.Color = SliderConfig.Color or OrionLib.Themes[OrionLib.SelectedTheme].Accent
 				SliderConfig.Flag = SliderConfig.Flag or nil
 				SliderConfig.Save = SliderConfig.Save or false
 
@@ -1178,7 +1746,7 @@ function OrionLib:MakeWindow(WindowConfig)
 							Size = UDim2.new(1, 0, 0, 28),
 							BackgroundTransparency = 1,
 							ClipsDescendants = true
-						}), "Divider")
+						}), "Accent")
 
 						AddConnection(OptionBtn.MouseButton1Click, function()
 							Dropdown:Set(Option)
@@ -1710,6 +2278,7 @@ function OrionLib:MakeWindow(WindowConfig)
 		end
 		return ElementFunction   
 	end  
+
 	return TabFunction
 end   
 
