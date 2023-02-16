@@ -22,6 +22,14 @@ local function SendNotification(Name,Content,Image,Time)
 end
 
 
+--Check whether a key, has already been put in before loading loader. 
+if _G.Key then 
+    local GetScript = Request({Url = "https://raw.githubusercontent.com/Eazvy/Eazvy-Hub/main/Games/" .. tostring(game.PlaceId) .. ".lua",Method = "GET"})
+    if GetScript.Body ~= "404: Not Found" then
+        Library:Destroy()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Eazvy/Eazvy-Hub/main/Games/" .. tostring(game.PlaceId) .. ".lua"))()
+    end
+end 
 
 
 SendNotification("Eazvy Hub", "Loading please wait...", "rbxassetid://10715004387", 3)
