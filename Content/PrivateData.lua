@@ -1,3 +1,3 @@
 _G.GlobalData = {
-  43438352342
+  2131321aszdawdwa
 }
