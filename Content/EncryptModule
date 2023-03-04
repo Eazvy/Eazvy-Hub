@@ -1,0 +1,120 @@
+--[[
+
+██╗░░██╗░█████╗░░░░░░░██╗░░██╗░█████╗░██╗░██████╗  ░██████╗████████╗██████╗░██╗███╗░░██╗░██████╗░
+██║░░██║██╔══██╗░░░░░░██║░░██║██╔══██╗╚█║██╔════╝  ██╔════╝╚══██╔══╝██╔══██╗██║████╗░██║██╔════╝░
+███████║██║░░██║█████╗███████║██║░░██║░╚╝╚█████╗░  ╚█████╗░░░░██║░░░██████╔╝██║██╔██╗██║██║░░██╗░
+██╔══██║██║░░██║╚════╝██╔══██║██║░░██║░░░░╚═══██╗  ░╚═══██╗░░░██║░░░██╔══██╗██║██║╚████║██║░░╚██╗
+██║░░██║╚█████╔╝░░░░░░██║░░██║╚█████╔╝░░░██████╔╝  ██████╔╝░░░██║░░░██║░░██║██║██║░╚███║╚██████╔╝
+╚═╝░░╚═╝░╚════╝░░░░░░░╚═╝░░╚═╝░╚════╝░░░░╚═════╝░  ╚═════╝░░░░╚═╝░░░╚═╝░░╚═╝╚═╝╚═╝░░╚══╝░╚═════╝░
+
+███████╗███╗░░██╗░█████╗░██████╗░██╗░░░██╗██████╗░████████╗███████╗██████╗░
+██╔════╝████╗░██║██╔══██╗██╔══██╗╚██╗░██╔╝██╔══██╗╚══██╔══╝██╔════╝██╔══██╗
+█████╗░░██╔██╗██║██║░░╚═╝██████╔╝░╚████╔╝░██████╔╝░░░██║░░░█████╗░░██████╔╝
+██╔══╝░░██║╚████║██║░░██╗██╔══██╗░░╚██╔╝░░██╔═══╝░░░░██║░░░██╔══╝░░██╔══██╗
+███████╗██║░╚███║╚█████╔╝██║░░██║░░░██║░░░██║░░░░░░░░██║░░░███████╗██║░░██║
+╚══════╝╚═╝░░╚══╝░╚════╝░╚═╝░░╚═╝░░░╚═╝░░░╚═╝░░░░░░░░╚═╝░░░╚══════╝╚═╝░░╚═╝
+
+
+FORUM LINK: https://robloxforum.com/threads/ho-hos-string-encrypter.90598/
+FORUM LINK: https://robloxforum.com/threads/ho-hos-string-encrypter.90598/
+FORUM LINK: https://robloxforum.com/threads/ho-hos-string-encrypter.90598/
+FORUM LINK: https://robloxforum.com/threads/ho-hos-string-encrypter.90598/
+FORUM LINK: https://robloxforum.com/threads/ho-hos-string-encrypter.90598/
+FORUM LINK: https://robloxforum.com/threads/ho-hos-string-encrypter.90598/
+FORUM LINK: https://robloxforum.com/threads/ho-hos-string-encrypter.90598/
+FORUM LINK: https://robloxforum.com/threads/ho-hos-string-encrypter.90598/
+FORUM LINK: https://robloxforum.com/threads/ho-hos-string-encrypter.90598/
+FORUM LINK: https://robloxforum.com/threads/ho-hos-string-encrypter.90598/
+FORUM LINK: https://robloxforum.com/threads/ho-hos-string-encrypter.90598/
+FORUM LINK: https://robloxforum.com/threads/ho-hos-string-encrypter.90598/
+FORUM LINK: https://robloxforum.com/threads/ho-hos-string-encrypter.90598/
+FORUM LINK: https://robloxforum.com/threads/ho-hos-string-encrypter.90598/
+FORUM LINK: https://robloxforum.com/threads/ho-hos-string-encrypter.90598/
+FORUM LINK: https://robloxforum.com/threads/ho-hos-string-encrypter.90598/
+FORUM LINK: https://robloxforum.com/threads/ho-hos-string-encrypter.90598/
+FORUM LINK: https://robloxforum.com/threads/ho-hos-string-encrypter.90598/
+
+
+
+Credits:
+
+Original document: https://bit.ly/31WhK9j
+Created at: 20/03/2012 (DD-MM-YY)
+
+Functions:
+
+- Encrypt: This encrypts the code based on the given method number, the method number is the way your gonna encrypt the number.
+- Decrypt: This decrypts the code based on the given method number, if you try to decrypt the encoded string you have to use the same method number.
+
+Example:
+
+require(script.MainModule).encrypt("Hello I want to encrypt this!", 45)
+Output: 92%%-Sh h/W('h'-h2(Y]a_'h'80;H
+
+require(script.MainModule).decrypt("92%%-Sh h/W('h'-h2(Y]a_'h'80;H", 45)
+Output: Hello I want to encrypt this!
+
+]]
+
+-- You can use: "" '' [[]] 
+
+
+
+
+local module = {}
+
+module.encrypt = function(str, code)
+	-- character table
+	chars=[[1234567890!@#$%^&*()qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM ,<.>/?;:'"[{]}\|`~]]
+	-- new code begin
+	newcode=""
+	-- we start
+	for i=1, 999 do
+		if string.sub(str,i,i) == "" then
+			break
+		else
+			com=string.sub(str,i,i)
+		end
+		for x=1, 90 do
+			cur=string.sub(chars,x,x)
+			if com == cur then
+				new=x+code
+				while new > 90 do
+					new = new - 90
+				end
+				newcode=""..newcode..""..string.sub(chars,new,new)..""
+			end
+		end
+	end
+	return newcode
+end
+
+module.decrypt = function(str, code)
+	-- character table
+	chars=[[1234567890!@#$%^&*()qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM ,<.>/?;:'"[{]}\|`~]]
+	-- new code begin
+	newcode=""
+	-- we start
+	for i=1, 999 do
+		if string.sub(str,i,i) == "" then
+			break
+		else
+			com=string.sub(str,i,i)
+		end
+		for x=1, 90 do
+			cur=string.sub(chars,x,x)
+			if com == cur then
+				new=x-code
+				while new < 0 do
+					new = new + 90
+				end
+				newcode=""..newcode..""..string.sub(chars,new,new)..""
+			end
+		end
+	end
+	return newcode
+end
+
+
+
+return module
