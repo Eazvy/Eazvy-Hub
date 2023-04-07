@@ -27,6 +27,7 @@ if _G.Key then
     local GetScript = Request({Url = "https://raw.githubusercontent.com/Eazvy/Eazvy-Hub/main/Games/" .. tostring(game.PlaceId) .. ".lua",Method = "GET"})
     if GetScript.Body ~= "404: Not Found" then
         Library:Destroy()
+	_G.Key = _G.Key
         loadstring(game:HttpGet("https://raw.githubusercontent.com/Eazvy/Eazvy-Hub/main/Games/" .. tostring(game.PlaceId) .. ".lua"))()
     end
 end 
@@ -73,6 +74,7 @@ Main:AddButton({Name = "Load Script",Callback = function()
     local GetScript = Request({Url = "https://raw.githubusercontent.com/Eazvy/Eazvy-Hub/main/Games/" .. tostring(game.PlaceId) .. ".lua",Method = "GET"})
     if GetScript.Body ~= "404: Not Found" then
         Library:Destroy()
+	_G.Key = _G.Key
         loadstring(game:HttpGet("https://raw.githubusercontent.com/Eazvy/Eazvy-Hub/main/Games/" .. tostring(game.PlaceId) .. ".lua"))()
     else
         SendNotification("Eazvy Hub - Error", "The game you're currently in is not supported with Eazvy Hub.", "rbxassetid://161551681", 5)
