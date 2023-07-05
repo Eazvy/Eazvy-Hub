@@ -1,5 +1,3 @@
-
-
 local UserInputService = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
 local RunService = game:GetService("RunService")
@@ -1300,7 +1298,9 @@ function OrionLib:MakeWindow(WindowConfig)
 
 				local ParagraphFunction = {}
 				function ParagraphFunction:Set(ToChange)
-					ParagraphFrame.Content.Text = ToChange
+                    if ParagraphFrame and ParagraphFrame:FindFirstChild("Content") and ParagraphFrame.Content:FindFirstChild("Text") then 
+					   ParagraphFrame.Content.Text = ToChange
+                    end 
 				end
 				return ParagraphFunction
 			end    
