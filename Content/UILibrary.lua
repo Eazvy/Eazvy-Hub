@@ -1298,9 +1298,7 @@ function OrionLib:MakeWindow(WindowConfig)
 
 				local ParagraphFunction = {}
 				function ParagraphFunction:Set(ToChange)
-                    if ParagraphFrame and ParagraphFrame:FindFirstChild("Content") and ParagraphFrame.Content:FindFirstChild("Text") then 
-					   ParagraphFrame.Content.Text = ToChange
-                    end 
+                    ParagraphFrame.Content.Text = ToChange
 				end
 				return ParagraphFunction
 			end    
