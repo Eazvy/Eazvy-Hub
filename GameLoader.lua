@@ -48,7 +48,6 @@ end
 
 SendNotification("AZVY HUB", "is Loading please wait...", "rbxassetid://13328029686", 5)
 
-
 --Config
 if isfile and not isfile("Eazvy-Hub/MainConfig.txt") and writefile then 
     writefile('Eazvy-Hub/MainConfig.txt', game:GetService('HttpService'):JSONEncode(Settings))
@@ -76,8 +75,6 @@ local Main = Window:MakeTab({
 	Icon = "rbxassetid://9204970314",
 	PremiumOnly = false
 })
-
-
 
 --Paragraphs 
 Main:AddParagraph("Important","Eazvy-Hub is not responsible for in-game bans. If you are banned permanently, do not beg the owner to help you or it'll result in a permanent blacklist.")
