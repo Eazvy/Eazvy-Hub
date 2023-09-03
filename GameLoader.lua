@@ -81,7 +81,7 @@ local Main = Window:MakeTab({
 
 --Paragraphs 
 Main:AddParagraph("Important","Eazvy-Hub is not responsible for in-game bans. If you are banned permanently, do not beg the owner to help you or it'll result in a permanent blacklist.")
-Main:AddParagraph("Supported Executors:","Synapse X, KRNL, Scriptware, Fluxus. Some things may not function properly this all based off of your Executor! If your executor is not supported some features may not be functional.")
+Main:AddParagraph("Supported Executors:","Synapse-X, KRNL, Scriptware, Valyse, Electron, Comet, Hydrogen, Oxygen-U, and Fluxus. Some things may not function properly this all based off of your Executor! If your executor is not supported some features may not be functional.")
 
 --Toggles / Buttons
 if writefile and readfile and isfile then 
