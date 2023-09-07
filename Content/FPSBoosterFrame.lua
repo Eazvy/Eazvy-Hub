@@ -35,9 +35,9 @@ if FpsBooster then
     TextLabel.Position = UDim2.new(0.0230534486, 0, 0.0134328362, 0)
     TextLabel.Size = UDim2.new(0, 302, 0, 50)
     TextLabel.Font = Enum.Font.GothamBold
-    TextLabel.Text = "User: EazvyHub"
+    TextLabel.Text = "User: Loading..."
     TextLabel.TextColor3 = Color3.fromRGB(240, 240, 240)
-    TextLabel.TextSize = 35.000
+    TextLabel.TextSize = 21.000
     TextLabel.TextWrapped = true
     TextLabel.TextXAlignment = Enum.TextXAlignment.Left
 
