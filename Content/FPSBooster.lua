@@ -3,7 +3,7 @@
 -- send issues or suggestions to my discord: discord.gg/rips
 _G.Settings = {
     Players = {
-        ["Ignore Me"] = true, -- Ignore your Character
+        ["Ignore Me"] = false, -- Ignore your Character
         ["Ignore Others"] = false -- Ignore other Characters
     },
     Meshes = {
