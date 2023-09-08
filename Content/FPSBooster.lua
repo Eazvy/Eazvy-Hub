@@ -32,7 +32,7 @@ if not _G.WaitPerAmount then
     _G.WaitPerAmount = 500 -- Set Higher or Lower depending on your computer's performance
 end
 if _G.SendNotifications == nil then
-    _G.SendNotifications = true -- Set to false if you don't want notifications
+    _G.SendNotifications = false -- Set to false if you don't want notifications
 end
 if _G.ConsoleLogs == nil then
     _G.ConsoleLogs = false -- Set to true if you want console logs (mainly for debugging)
