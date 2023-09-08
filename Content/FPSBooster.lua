@@ -25,6 +25,18 @@ _G.Settings = {
     ["Low Quality Parts"] = true -- Lower quality parts
 }
 
+task.spawn(function()
+pcall(function()
+for i, v in pairs(game:GetDescendants()) do
+	if v:IsA("MeshPart") then
+	   pcall(function() sethiddenproperty(v, "RenderFidelityReplicate", Enum.RenderFidelity.Performance) end) --- HAHAHAH, I HAVE FOUND THE SECRET!
+           pcall(function() v.CastShadow = false end)
+	end
+    end
+end)
+end)
+
+
 if not _G.Ignore then
     _G.Ignore = {} -- Add Instances to this table to ignore them (e.g. _G.Ignore = {workspace.Map, workspace.Map2})
 end
