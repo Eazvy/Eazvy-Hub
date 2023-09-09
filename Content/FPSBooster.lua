@@ -8,7 +8,12 @@ if not game['Loaded'] or not game:GetService('Players')['LocalPlayer'] then
     game:GetService('Players'):WaitForChild(game:GetService('Players').LocalPlayer.Name)
 end
 
-
+  for _,v in pairs(game:GetDescendants()) do 
+            if v:IsA("MeshPart") then 
+                HiddenProps(v,"RenderFidelityReplicate",Enum.RenderFidelity.Performance)
+                v.CastShadow = false 
+            end
+        end
 
 local LP = game:GetService('Players').LocalPlayer
 --// Physical/UI Derender
