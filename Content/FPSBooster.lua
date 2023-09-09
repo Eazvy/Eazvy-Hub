@@ -11,30 +11,6 @@ end
 
 
 local LP = game:GetService('Players').LocalPlayer
-
-local function OnDescendantAdded(obj)
-if obj:IsA("BasePart") then
-    obj.CastShadow = false
-    
-    if obj.Material == "Plastic" then
-        obj.Material = "SmoothPlastic"
-    end
-    
-    if obj:IsA("MeshPart") then
-        pcall(function() sethiddenproperty(obj, "RenderFidelityReplicate", "Performance") end)
-    end
---elseif obj:IsA("ParticleEmitter") or obj:IsA("Fire") or obj:IsA("Beam") or obj:IsA("Smoke") or obj:IsA("Sparkles") then
-elseif obj:IsA("ParticleEmitter") or obj:IsA("Smoke") or obj:IsA("Sparkles") then
-    obj.Enabled = false
-elseif obj:IsA("Model") then
-    obj.LevelOfDetail = "Disabled"
-end
-end
-
-workspace.DescendantAdded:Connect(function(v)
-OnDescendantAdded(v)
-end)
-
 --// Physical/UI Derender
 for _, v in next, game:GetDescendants() do
     if v:IsA('Workspace') then
