@@ -8,16 +8,32 @@ if not game['Loaded'] or not game:GetService('Players')['LocalPlayer'] then
     game:GetService('Players'):WaitForChild(game:GetService('Players').LocalPlayer.Name)
 end
 
-local LP = game:GetService('Players').LocalPlayer
---// Physics Settings
-settings().Physics.PhysicsEnvironmentalThrottle = 1
-settings().Rendering.QualityLevel = 'Level01'
-UserSettings():GetService('UserGameSettings').MasterVolume = 0
--- Comment line 7 if you want to be able to hear your game, keep it the same if you're using it for bots.
 
---// Hidden Functions
-setsimulationradius(0, 0)
-setfpscap(144)
+
+local LP = game:GetService('Players').LocalPlayer
+
+local function OnDescendantAdded(obj)
+if obj:IsA("BasePart") then
+    obj.CastShadow = false
+    
+    if obj.Material == "Plastic" then
+        obj.Material = "SmoothPlastic"
+    end
+    
+    if obj:IsA("MeshPart") then
+        pcall(function() sethiddenproperty(obj, "RenderFidelityReplicate", "Performance") end)
+    end
+--elseif obj:IsA("ParticleEmitter") or obj:IsA("Fire") or obj:IsA("Beam") or obj:IsA("Smoke") or obj:IsA("Sparkles") then
+elseif obj:IsA("ParticleEmitter") or obj:IsA("Smoke") or obj:IsA("Sparkles") then
+    obj.Enabled = false
+elseif obj:IsA("Model") then
+    obj.LevelOfDetail = "Disabled"
+end
+end
+
+workspace.DescendantAdded:Connect(function(v)
+OnDescendantAdded(v)
+end)
 
 --// Physical/UI Derender
 for _, v in next, game:GetDescendants() do
