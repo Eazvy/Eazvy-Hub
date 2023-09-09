@@ -8,6 +8,8 @@ if not game['Loaded'] or not game:GetService('Players')['LocalPlayer'] then
     game:GetService('Players'):WaitForChild(game:GetService('Players').LocalPlayer.Name)
 end
 
+local HiddenProps = sethiddenproperty or set_hidden_property or sethiddenprop or setscriptable and function(loc,prop,val) if not loc then return true end end
+
   for _,v in pairs(game:GetDescendants()) do 
             if v:IsA("MeshPart") then 
                 HiddenProps(v,"RenderFidelityReplicate",Enum.RenderFidelity.Performance)
