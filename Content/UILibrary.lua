@@ -1,3 +1,4 @@
+
 local UserInputService = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
 local RunService = game:GetService("RunService")
@@ -436,6 +437,7 @@ function OrionLib:MakeNotification(NotificationConfig)
 			Size = UDim2.new(1, 0, 0, 0),
 			Position = UDim2.new(1, -55, 0, 0),
 			BackgroundTransparency = 0,
+            BackgroundColor3 = OrionLib.Themes[OrionLib.SelectedTheme].Main,
 			AutomaticSize = Enum.AutomaticSize.Y
 		}), {
 			MakeElement("Stroke", Color3.fromRGB(93, 93, 93), 1.2),
@@ -485,11 +487,11 @@ function OrionLib:MakeNotification2(NotificationConfig)
 		NotificationConfig.Content = NotificationConfig.Content or "Test"
 		NotificationConfig.Image = NotificationConfig.Image or "rbxassetid://4384403532"
 		NotificationConfig.Time = NotificationConfig.Time or 15
-
+    
 		local NotificationParent = SetProps(MakeElement("TFrame"), {
 			Size = UDim2.new(1, 0, 0, 0),
 			AutomaticSize = Enum.AutomaticSize.Y,
-			Parent = NotificationHolder
+			Parent = NotificationHolder,
 		})
 
 		local NotificationFrame = SetChildren(SetProps(MakeElement("RoundFrame", Color3.fromRGB(25, 25, 25), 0, 10), {
@@ -497,6 +499,7 @@ function OrionLib:MakeNotification2(NotificationConfig)
 			Size = UDim2.new(1, 0, 0, 0),
 			Position = UDim2.new(1, -55, 0, 0),
 			BackgroundTransparency = 0,
+            BackgroundColor3 = OrionLib.Themes[OrionLib.SelectedTheme].Main,
 			AutomaticSize = Enum.AutomaticSize.Y
 		}), {
 			MakeElement("Stroke", Color3.fromRGB(93, 93, 93), 1.2),
@@ -880,8 +883,9 @@ function OrionLib:MakeWindow(WindowConfig)
 		UIHidden = true
 		OrionLib:MakeNotification({
 			Name = "Interface Hidden",
-			Content = "Tap Q to reopen the interface",
-			Time = 10
+			Content = 'Press "Q" to reopen the interface',
+			Time = 10,
+            Image = "rbxassetid://13321848320"
 		})
 		WindowConfig.CloseCallback()
 	end)
@@ -2345,5 +2349,7 @@ end
 function OrionLib:Destroy()
 	Orion:Destroy()
 end
+
+
 
 return OrionLib
