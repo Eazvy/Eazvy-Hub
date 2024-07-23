@@ -70,12 +70,13 @@ local Orion = Instance.new("ScreenGui")
 Orion.Name = "Orion"
 Orion.Parent = CoreGui
 
-
-for _, Interface in ipairs(CoreGui:GetChildren()) do
-if Interface.Name == Orion.Name and Interface ~= Orion then
-   Interface:Destroy()
-   end
-end
+if not Destroy_UI then 
+    for _, Interface in ipairs(CoreGui:GetChildren()) do
+        if Interface.Name == Orion.Name and Interface ~= Orion then
+           Interface:Destroy()
+        end
+    end
+end 
 
 
 function OrionLib:IsRunning()
@@ -2348,7 +2349,5 @@ end
 function OrionLib:Destroy()
 	Orion:Destroy()
 end
-
-
 
 return OrionLib
