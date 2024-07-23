@@ -70,7 +70,7 @@ local Orion = Instance.new("ScreenGui")
 Orion.Name = "Orion"
 Orion.Parent = CoreGui
 
-if not Destroy_UI then 
+if not _G.Destroy_UI then 
     for _, Interface in ipairs(CoreGui:GetChildren()) do
         if Interface.Name == Orion.Name and Interface ~= Orion then
            Interface:Destroy()
