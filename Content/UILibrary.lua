@@ -1,4 +1,3 @@
-
 local UserInputService = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
 local RunService = game:GetService("RunService")
@@ -67,16 +66,14 @@ end
 local CoreGui = game:GetService("CoreGui")
 
 local Orion = Instance.new("ScreenGui")
-Orion.Name = "Orion"
+Orion.Name = _G.UIName or "Orion"
 Orion.Parent = CoreGui
 
-if not _G.Destroy_UI then 
-    for _, Interface in ipairs(CoreGui:GetChildren()) do
-        if Interface.Name == Orion.Name and Interface ~= Orion then
-           Interface:Destroy()
-        end
+for _, Interface in ipairs(CoreGui:GetChildren()) do
+    if Interface.Name == Orion.Name and Interface ~= Orion then
+       Interface:Destroy()
     end
-end 
+end
 
 
 function OrionLib:IsRunning()
