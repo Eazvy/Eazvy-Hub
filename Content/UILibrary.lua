@@ -71,11 +71,11 @@ Orion.Name = "Orion"
 Orion.Parent = CoreGui
 
 
--- for _, Interface in ipairs(CoreGui:GetChildren()) do
--- 	if Interface.Name == Orion.Name and Interface ~= Orion then
--- 		Interface:Destroy()
--- 	end
--- end
+for _, Interface in ipairs(CoreGui:GetChildren()) do
+if Interface.Name == Orion.Name and Interface ~= Orion then
+   Interface:Destroy()
+   end
+end
 
 
 function OrionLib:IsRunning()
