@@ -48,7 +48,7 @@ local OrionLib = {
 local Icons = {}
 
 local Success, Response = pcall(function()
-    Icons = {}
+    Icons = HttpService:JSONDecode(game:HttpGetAsync("https://raw.githubusercontent.com/Baconamassado/lucideblox-icons/refs/heads/main/icons.json")).icons
 end)
 
 if not Success then
@@ -2348,4 +2348,3 @@ function OrionLib:Destroy()
 end
 
 return OrionLib
-
